@@ -1,21 +1,119 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { Agenda } from 'react-native-calendars';
+import { createStackNavigator } from '@react-navigation/stack';
+import dayjs from 'dayjs';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+dayjs.extend(isSameOrBefore);
+
 import type { StackNavigationProp } from '@react-navigation/stack';
-import type { RootStackParamList } from '../../navigation/AppNavigator'; // adjust if needed
+import type { RootStackParamList } from '../../navigation/AppNavigator';
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
+
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'FamilySchedule'>;
 
-function TodayScreen() {
+const TodayScreen = ({ selectedDate, setSelectedDate }: { selectedDate: string; setSelectedDate: React.Dispatch<React.SetStateAction<string>> }) => {
   const navigation = useNavigation<NavigationProp>();
+  const [items, setItems] = useState<Record<string, { name: string }[]>>({});
 
+
+  // Predefined events
+  const predefinedEvents = [
+    { date: '2025-04-30', name: 'Meeting with Bob' },
+    { date: '2025-04-30', name: 'Team Lunch' },
+    { date: '2025-05-01', name: 'Doctor Appointment' },
+    { date: '2025-05-02', name: 'Project Deadline' },
+    { date: '2025-05-03', name: 'Dinner with Alice' },
+    { date: '2025-05-08', name: 'Meeting with Bob' },
+    { date: '2025-05-12', name: 'Team Lunch' },
+    { date: '2025-05-15', name: 'Doctor Appointment' },
+    { date: '2025-05-13', name: 'Project Deadline' },
+    { date: '2025-05-7', name: 'Dinner with Alice' },  ];
+  
+
+  // Load items for the month (or week)
+  const loadItemsForMonth = useCallback((day: any) => {
+    const newItems: Record<string, { name: string }[]> = {};
+
+    predefinedEvents.forEach(event => {
+      if (!newItems[event.date]) {
+        newItems[event.date] = [];
+      }
+      newItems[event.date].push({ name: event.name });
+    });
+
+    setItems(prev => ({ ...prev, ...newItems }));
+  }, []);
+
+  const renderItem = useCallback((item: { name: string }) => (
+    <View style={styles.item}>
+      <Text>{item.name}</Text>
+    </View>
+  ), []);
+
+  const renderEmptyData = () => (
+    <View style={styles.emptyItem}>
+      <Text style={{ color: '#999' }}>No events for today</Text>
+    </View>
+  );
+
+  const handleDateSelect = (date: string) => {
+    setSelectedDate(date); // Update selected date
+  };
+
+  const peopleColors: Record<string, string> = {
+
+  };
+  
+  const buildMarkedDates = () => {
+    const markings: Record<string, any> = {};
+  
+    predefinedEvents.forEach(event => {
+      if (!markings[event.date]) {
+        markings[event.date] = { dots: [] };
+      }
+      markings[event.date].dots.push({
+        key: event.name, // or event.person if you track that
+        color: peopleColors[event.name] || 'gray',
+      });
+    });
+  
+    // Ensure selected date is also highlighted
+    if (selectedDate) {
+      markings[selectedDate] = {
+        ...(markings[selectedDate] || {}),
+        selected: true,
+        selectedColor: '#00adf5',
+      };
+    }
+  
+    return markings;
+  };
+  
+  
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Today's Schedule</Text>
+    <View style={styles.container}>
+      <Agenda
+        items={items}
+        selected={selectedDate}
+        loadItemsForMonth={loadItemsForMonth}
+        renderItem={renderItem}
+        renderEmptyData={renderEmptyData}
+        onDayPress={(day: { dateString: string; }) => handleDateSelect(day.dateString)} 
+        markedDates={buildMarkedDates()}
+        markingType={'multi-dot'}
+      />
 
       <TouchableOpacity
         style={styles.fab}
@@ -25,17 +123,39 @@ function TodayScreen() {
       </TouchableOpacity>
     </View>
   );
-}
+};
 
 export default function FamilyScheduleScreen() {
+  const [selectedDate, setSelectedDate] = useState<string>(dayjs().format('YYYY-MM-DD'));
+
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Today" component={TodayScreen} />
+    <Tab.Navigator
+      screenListeners={{
+        tabPress: (e) => {
+          setSelectedDate(dayjs().format('YYYY-MM-DD'));
+        },
+      }}
+    >
+      <Tab.Screen
+        name="Today"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="today" size={size} color={color} />
+          ),
+        }}
+      >
+        {() => <TodayScreen selectedDate={selectedDate} setSelectedDate={setSelectedDate} />}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 }
 
+
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
   fab: {
     position: 'absolute',
     right: 20,
@@ -48,5 +168,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 5,
     zIndex: 1,
+  }, 
+  item: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    marginRight: 10,
+    marginTop: 17,
   },
+  emptyItem: {
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 17,
+  },  
 });
