@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Platform, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useLayoutEffect } from 'react';
+import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { Ionicons } from '@expo/vector-icons'; 
+import { useNavigation } from '@react-navigation/native';
 
 export default function AddScheduleScreen() {
+  const navigation = useNavigation();
+
   const [date, setDate] = useState(new Date());
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
@@ -32,6 +34,18 @@ export default function AddScheduleScreen() {
     }
     hidePicker();
   };
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Button
+          onPress={() => navigation.goBack()}
+          title="Submit"
+          color="#2196F3" // optional: change button color
+        />
+      ),
+    });
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
@@ -74,10 +88,7 @@ export default function AddScheduleScreen() {
         onCancel={hidePicker}
       />
 
-      {/* Floating Action Button */}
-      <TouchableOpacity style={styles.fab} onPress={() => { /* Add your action here */ }}>
-        <Ionicons name="add" size={32} color="white" />
-      </TouchableOpacity>
+
     </View>
   );
 }
@@ -106,17 +117,5 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 16,
     marginTop: 10,
-  },
-  fab: {
-    position: 'absolute',
-    right: 20,
-    bottom: 30,
-    backgroundColor: '#2196F3',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
-  },
+  }
 });
