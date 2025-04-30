@@ -2,6 +2,8 @@ import React, { useState, useLayoutEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useNavigation } from '@react-navigation/native';
+import { addDoc, collection } from 'firebase/firestore';
+import { db } from '../../database/firebase';
 
 export default function AddScheduleScreen() {
   const navigation = useNavigation();
@@ -10,7 +12,6 @@ export default function AddScheduleScreen() {
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
 
   const [pickerTarget, setPickerTarget] = useState<'date' | 'start' | 'end'>('date');
   const [isPickerVisible, setPickerVisibility] = useState(false);
@@ -39,13 +40,39 @@ export default function AddScheduleScreen() {
     navigation.setOptions({
       headerRight: () => (
         <Button
-          onPress={() => navigation.goBack()}
+        onPress={async () => {
+          try {
+            // 1. Prepare the schedule data
+            const scheduleData = {
+              title,
+              date: date.toISOString().split('T')[0],  // Storing date in ISO format
+              startTime: startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              endTime: endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            };
+        
+            console.log("Schedule Data:", scheduleData);  // 👈 Print to console
+
+            //-----------------
+            // 2. Add the schedule data to Firestore
+            const docRef = await addDoc(collection(db, 'schedules'), scheduleData);
+        
+            // 3. Log the document ID (for debugging)
+            console.log("Document written with ID: ", docRef.id);
+        
+            // 4. Navigate back (optional)
+            navigation.goBack();
+          } catch (error) {
+            // 5. Handle errors
+            console.error("Error adding document: ", error);
+          }
+        }}
+        
           title="Submit"
-          color="#2196F3" // optional: change button color
+          color="#2196F3"
         />
       ),
     });
-  }, [navigation]);
+  }, [navigation, title, date, startTime, endTime]);
 
   return (
     <View style={styles.container}>
@@ -55,14 +82,6 @@ export default function AddScheduleScreen() {
         placeholder="Enter title"
         value={title}
         onChangeText={setTitle}
-      />
-
-      <Text style={styles.label}>Description</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter description"
-        value={description}
-        onChangeText={setDescription}
       />
 
       <Text style={styles.label}>Date</Text>
@@ -87,8 +106,6 @@ export default function AddScheduleScreen() {
         onConfirm={handleConfirm}
         onCancel={hidePicker}
       />
-
-
     </View>
   );
 }
