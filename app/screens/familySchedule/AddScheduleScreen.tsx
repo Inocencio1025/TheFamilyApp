@@ -58,7 +58,7 @@ export default function AddScheduleScreen() {
         
             // 3. Log the document ID (for debugging)
             console.log("Document written with ID: ", docRef.id);
-        
+
             // 4. Navigate back (optional)
             navigation.goBack();
           } catch (error) {

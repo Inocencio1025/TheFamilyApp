@@ -1,9 +1,9 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import MainMenuScreen from '../screens/MainMenuScreen';
-import FamilyScheduleScreen from '../screens/schedule/FamilyScheduleScreen';
-import MediaTrackerScreen from '../screens/media/MediaTrackerScreen';
-import AddScheduleScreen from '../screens/schedule/AddScheduleScreen';
+import FamilyScheduleScreen from '../screens/familySchedule/FamilyScheduleScreen';
+import MediaTrackerScreen from '../screens/mediaTracker/MediaTrackerScreen';
+import AddScheduleScreen from '../screens/familySchedule/AddScheduleScreen';
 
 export type RootStackParamList = {
   MainMenu: undefined;
