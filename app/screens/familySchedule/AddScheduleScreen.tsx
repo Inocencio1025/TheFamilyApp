@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useNavigation } from '@react-navigation/native';
 import { addDoc, collection } from 'firebase/firestore';
@@ -12,6 +12,7 @@ export default function AddScheduleScreen() {
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
   const [title, setTitle] = useState('');
+  const [color, setColor] = useState('#f44336'); // Default red
 
   const [pickerTarget, setPickerTarget] = useState<'date' | 'start' | 'end'>('date');
   const [isPickerVisible, setPickerVisibility] = useState(false);
@@ -45,12 +46,14 @@ export default function AddScheduleScreen() {
             // 1. Prepare the schedule data
             const scheduleData = {
               title,
-              date: date.toISOString().split('T')[0],  // Storing date in ISO format
+              date: date.toISOString().split('T')[0],
               startTime: startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
               endTime: endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              color, 
             };
+            
         
-            console.log("Schedule Data:", scheduleData);  // 👈 Print to console
+            console.log("Schedule Data:", scheduleData);  
 
             //-----------------
             // 2. Add the schedule data to Firestore
@@ -106,6 +109,18 @@ export default function AddScheduleScreen() {
         onConfirm={handleConfirm}
         onCancel={hidePicker}
       />
+
+      <Text style={styles.label}>Color</Text>
+      <View style={styles.colorRow}>
+        {['#f44336', '#2196F3', '#4CAF50', '#FF9800', '#9C27B0'].map((c) => (
+          <TouchableOpacity
+            key={c}
+            onPress={() => setColor(c)}
+            style={[styles.colorOption, { backgroundColor: c, borderWidth: color === c ? 2 : 0 }]}
+          />
+        ))}
+      </View>
+
     </View>
   );
 }
@@ -134,5 +149,16 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 16,
     marginTop: 10,
-  }
+  },
+  colorRow: {
+    flexDirection: 'row',
+    marginTop: 10,
+  },
+  colorOption: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginRight: 10,
+    borderColor: 'black',
+  },
 });

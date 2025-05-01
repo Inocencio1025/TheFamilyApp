@@ -16,7 +16,6 @@ import type { StackNavigationProp } from '@react-navigation/stack';
 import type { RootStackParamList } from '../../navigation/AppNavigator';
 
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'FamilySchedule'>;
 
@@ -25,26 +24,33 @@ const TodayScreen = ({ selectedDate, setSelectedDate }: { selectedDate: string; 
   const [items, setItems] = useState<Record<string, { name: string }[]>>({});
   const [loading, setLoading] = useState(true);
 
-  // Firestore reference
+  const updateItems = (newData: Record<string, any[]>) => {
+    setItems((prevItems) => ({
+      ...prevItems,
+      ...newData,
+    }));
+  };
 
   const loadEventsFromDB = async () => {
     const eventsCollection = collection(db, 'schedules'); 
     const eventsSnapshot = await getDocs(eventsCollection);
     const eventsList = eventsSnapshot.docs.map(doc => doc.data());
 
-    const newItems: Record<string, { name: string }[]> = {};
+    const newItems: Record<string, { name: string; startTime?: string; endTime?: string; color?: string }[]> = {};
     eventsList.forEach(event => {
-      const date = event.date; // Assuming 'date' is a field in Firestore
+      const date = event.date; // 'YYYY-MM-DD'
       if (!newItems[date]) {
         newItems[date] = [];
       }
-      newItems[date].push({ name: event.title }); 
+      newItems[date].push({ 
+        name: event.title, 
+        startTime: event.startTime, 
+        endTime: event.endTime,
+        color: event.color 
+      });
     });
 
-    setItems(prevItems => ({
-      ...prevItems,
-      ...newItems
-    }));
+    updateItems(newItems); 
     setLoading(false);
   };
 
@@ -56,7 +62,6 @@ const TodayScreen = ({ selectedDate, setSelectedDate }: { selectedDate: string; 
     const newItems: Record<string, { name: string }[]> = {};
     const today = new Date(day.timestamp);
 
-    // Fill next 30 days with empty arrays
     for (let i = 0; i < 30; i++) {
       const date = new Date(today);
       date.setDate(date.getDate() + i);
@@ -64,20 +69,26 @@ const TodayScreen = ({ selectedDate, setSelectedDate }: { selectedDate: string; 
       newItems[dateString] = [];
     }
 
-    // Insert loaded events
     Object.keys(items).forEach(date => {
       newItems[date] = items[date];
     });
 
-    setItems(prevItems => ({
-      ...prevItems,
-      ...newItems
-    }));
+    updateItems(newItems); 
   }, [items]);
 
-  const renderItem = useCallback((item: { name: string }) => (
-    <View style={styles.item}>
-      <Text>{item.name}</Text>
+  const renderItem = useCallback((item: { name: string; startTime?: string; endTime?: string; color?: string }) => (
+    <View style={styles.itemContainer}>
+      <View style={[styles.colorStrip, { backgroundColor: item.color || 'gray' }]} />
+      <View style={styles.itemContent}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <Text>{item.name}</Text>
+          {item.startTime && item.endTime && (
+            <Text style={{ color: 'gray' }}>
+              {item.startTime} - {item.endTime}
+            </Text>
+          )}
+        </View>
+      </View>
     </View>
   ), []);
 
@@ -137,6 +148,7 @@ const TodayScreen = ({ selectedDate, setSelectedDate }: { selectedDate: string; 
   );
 };
 
+
 export default function FamilyScheduleScreen() {
   const [selectedDate, setSelectedDate] = useState<string>(dayjs().format('YYYY-MM-DD'));
 
@@ -193,5 +205,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 17,
+  },
+  itemContainer: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    marginRight: 10,
+    marginTop: 17,
+    overflow: 'hidden',
+    elevation: 1,
+  },
+  colorStrip: {
+    width: 6,
+  },
+  itemContent: {
+    flex: 1,
+    padding: 20,
   },
 });
