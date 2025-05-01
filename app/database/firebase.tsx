@@ -1,23 +1,20 @@
 // firebase.tsx
-
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyAjYHuu6Flnu2gncIRc93QySi3DH6euUcU",
   authDomain: "thefamilyapp-edfa8.firebaseapp.com",
   projectId: "thefamilyapp-edfa8",
-  storageBucket: "thefamilyapp-edfa8.firebasestorage.app",
+  storageBucket: "thefamilyapp-edfa8.appspot.com",
   messagingSenderId: "607018813277",
   appId: "1:607018813277:web:b0fec4708fe66f5ba9cab4",
   measurementId: "G-75WESFNHBC"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// Force long-polling for Firestore (fixes WebSocket issues on some networks/Expo Go)
 const db = getFirestore(app);
+const auth = getAuth(app);
 
-export { db };
+export { db, auth };
