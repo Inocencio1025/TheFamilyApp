@@ -7,6 +7,9 @@ import { Agenda } from 'react-native-calendars';
 import { createStackNavigator } from '@react-navigation/stack';
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../database/firebase';
+
 dayjs.extend(isSameOrBefore);
 
 import type { StackNavigationProp } from '@react-navigation/stack';
@@ -20,24 +23,39 @@ type NavigationProp = StackNavigationProp<RootStackParamList, 'FamilySchedule'>;
 const TodayScreen = ({ selectedDate, setSelectedDate }: { selectedDate: string; setSelectedDate: React.Dispatch<React.SetStateAction<string>> }) => {
   const navigation = useNavigation<NavigationProp>();
   const [items, setItems] = useState<Record<string, { name: string }[]>>({});
-  
-  const predefinedEvents = [
-    { date: '2025-04-30', name: 'Meeting with Bob' },
-    { date: '2025-04-30', name: 'Team Lunch' },
-    { date: '2025-05-01', name: 'Doctor Appointment' },
-    { date: '2025-05-02', name: 'Project Deadline' },
-    { date: '2025-05-03', name: 'Dinner with Alice' },
-    { date: '2025-05-08', name: 'Meeting with Bob' },
-    { date: '2025-05-12', name: 'Team Lunch' },
-    { date: '2025-05-15', name: 'Doctor Appointment' },
-    { date: '2025-05-13', name: 'Project Deadline' },
-    { date: '2025-05-7', name: 'Dinner with Alice' },
-  ];
+  const [loading, setLoading] = useState(true);
+
+  // Firestore reference
+
+  const loadEventsFromDB = async () => {
+    const eventsCollection = collection(db, 'schedules'); 
+    const eventsSnapshot = await getDocs(eventsCollection);
+    const eventsList = eventsSnapshot.docs.map(doc => doc.data());
+
+    const newItems: Record<string, { name: string }[]> = {};
+    eventsList.forEach(event => {
+      const date = event.date; // Assuming 'date' is a field in Firestore
+      if (!newItems[date]) {
+        newItems[date] = [];
+      }
+      newItems[date].push({ name: event.title }); 
+    });
+
+    setItems(prevItems => ({
+      ...prevItems,
+      ...newItems
+    }));
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadEventsFromDB();
+  }, []);
 
   const loadItemsForMonth = useCallback((day: any) => {
     const newItems: Record<string, { name: string }[]> = {};
     const today = new Date(day.timestamp);
-  
+
     // Fill next 30 days with empty arrays
     for (let i = 0; i < 30; i++) {
       const date = new Date(today);
@@ -45,22 +63,17 @@ const TodayScreen = ({ selectedDate, setSelectedDate }: { selectedDate: string; 
       const dateString = date.toISOString().split('T')[0];
       newItems[dateString] = [];
     }
-  
-    // Insert predefined events
-    predefinedEvents.forEach(event => {
-      if (!newItems[event.date]) {
-        newItems[event.date] = [];
-      }
-      newItems[event.date].push({ name: event.name });
+
+    // Insert loaded events
+    Object.keys(items).forEach(date => {
+      newItems[date] = items[date];
     });
-  
+
     setItems(prevItems => ({
       ...prevItems,
       ...newItems
-    }));    
-
-  }, []);
-  
+    }));
+  }, [items]);
 
   const renderItem = useCallback((item: { name: string }) => (
     <View style={styles.item}>
@@ -68,23 +81,19 @@ const TodayScreen = ({ selectedDate, setSelectedDate }: { selectedDate: string; 
     </View>
   ), []);
 
-
-
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
   };
 
-  const peopleColors: Record<string, string> = {};
-
   const buildMarkedDates = () => {
     const markings: Record<string, any> = {};
-    predefinedEvents.forEach(event => {
-      if (!markings[event.date]) {
-        markings[event.date] = { dots: [] };
-      }
-      markings[event.date].dots.push({
-        key: event.name,
-        color: peopleColors[event.name] || 'gray',
+    Object.keys(items).forEach(date => {
+      markings[date] = { dots: [] };
+      items[date].forEach(event => {
+        markings[date].dots.push({
+          key: event.name,
+          color: 'gray',
+        });
       });
     });
 
@@ -98,6 +107,14 @@ const TodayScreen = ({ selectedDate, setSelectedDate }: { selectedDate: string; 
 
     return markings;
   };
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading events...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -127,6 +144,7 @@ export default function FamilyScheduleScreen() {
     <Tab.Navigator
       screenListeners={{
         tabPress: (e) => {
+          
           setSelectedDate(dayjs().format('YYYY-MM-DD'));
         },
       }}
