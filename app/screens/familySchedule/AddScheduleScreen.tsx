@@ -194,7 +194,8 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: '600',
+    fontFamily: 'PixelSans'
   },
 });

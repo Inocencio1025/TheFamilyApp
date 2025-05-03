@@ -98,7 +98,7 @@ const TodayScreen = ({
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <Text>{item.title}</Text>
           {item.startTime && item.endTime && (
-            <Text style={{ color: 'gray' }}>{item.startTime} - {item.endTime}</Text>
+            <Text style={{color: 'gray'}}>{item.startTime} - {item.endTime}</Text>
           )}
         </View>
       </View>
@@ -192,6 +192,17 @@ export default function FamilyScheduleScreen() {
 
   return (
     <Tab.Navigator
+      screenOptions={{
+        tabBarLabelStyle: {
+          fontFamily: 'PixelSans', // or your custom font
+          fontSize: 16,
+        },
+        headerTitleStyle: {
+          fontFamily: 'PixelSans',
+          fontSize: 28,
+        },
+        headerTitleAlign: 'center',
+      }}
       screenListeners={{
         tabPress: () => setSelectedDate(dayjs().format('YYYY-MM-DD')),
       }}
@@ -243,5 +254,10 @@ const styles = StyleSheet.create({
   itemContent: {
     flex: 1,
     padding: 20,
+  },
+  itemText: {
+    fontFamily: 'PixelSans',  // Apply custom font here
+    fontSize: 16,
+    color: '#000',
   },
 });

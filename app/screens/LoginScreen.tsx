@@ -153,6 +153,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    fontFamily: 'PixelSans'
   },
   createUserSection: {
     marginTop: 20,

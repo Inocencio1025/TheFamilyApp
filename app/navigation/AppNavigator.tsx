@@ -6,6 +6,7 @@ import MediaTrackerScreen from '../screens/mediaTracker/MediaTrackerScreen';
 import AddScheduleScreen from '../screens/familySchedule/AddScheduleScreen';
 import LoginScreen from '../screens/LoginScreen';  
 import EditEventScreen from '../screens/familySchedule/EditEventScreen';  
+import { TextStyle } from 'react-native';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -29,7 +30,16 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
   return (
-    <Stack.Navigator initialRouteName="Login">  
+    <Stack.Navigator
+      initialRouteName="Login"
+      screenOptions={{
+        headerTitleStyle: {
+          fontFamily: 'PixelSans', // 👈 custom font applied here
+          fontSize: 28,
+        } as TextStyle,
+        headerTitleAlign: 'center',
+      }}
+    >
       <Stack.Screen
         name="Login"
         component={LoginScreen}

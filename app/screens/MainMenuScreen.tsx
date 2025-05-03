@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { Text } from '../components/Text';  // Make sure Text component is imported
 
 type MainMenuNavigationProp = StackNavigationProp<RootStackParamList, 'MainMenu'>;
 
@@ -35,16 +36,15 @@ export default function MainMenuScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('FamilySchedule')}>
-        <Text style={styles.buttonText}>Family Schedule</Text>
+        <Text variant="title" style={styles.buttonText}>Family Schedule</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MediaTracker')}>
-        <Text style={styles.buttonText}>Media Tracker</Text>
+        <Text variant="title" style={styles.buttonText}>Media Tracker</Text>
       </TouchableOpacity>
 
-      {/* Logout button as TouchableOpacity */}
       <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={() => logout(navigation)}>
-        <Text style={styles.buttonText}>Logout</Text>
+        <Text variant="title" style={styles.buttonText}>Logout</Text>
       </TouchableOpacity>
     </View>
   );
@@ -70,5 +70,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: 'PixelSans'
   },
 });
