@@ -2,20 +2,29 @@ import React, { useState, useLayoutEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useNavigation } from '@react-navigation/native';
-import { addDoc, collection } from 'firebase/firestore';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../database/firebase';
-import { getAuth } from 'firebase/auth'; // Import Firebase Authentication
 
-export default function AddScheduleScreen() {
+import { RootStackParamList } from '@/app/navigation/AppNavigator';
+
+type EditScheduleRouteProp = RouteProp<RootStackParamList, 'EditEvent'>;
+
+export default function EditEventScreen() {
   const navigation = useNavigation();
-  const auth = getAuth(); // Get Firebase Auth instance
+  const route = useRoute<EditScheduleRouteProp>();
+  const { event } = route.params; 
 
-  const [date, setDate] = useState(new Date());
-  const [startTime, setStartTime] = useState(new Date());
-  const [endTime, setEndTime] = useState(new Date());
-  const [title, setTitle] = useState('');
-  const [color, setColor] = useState('#f44336'); 
-  const [eventType, setEventType] = useState<'Work' | 'School' | 'Other' | ''>(''); 
+  const [date, setDate] = useState(new Date(event.date));
+  const [startTime, setStartTime] = useState(new Date(`1970-01-01T${event.startTime}:00`));
+  const [endTime, setEndTime] = useState(new Date(`1970-01-01T${event.endTime}:00`));
+  const [title, setTitle] = useState(event.title.includes('(') ? '' : event.title);
+  const [color, setColor] = useState(event.color);
+  const [eventType, setEventType] = useState<'Work' | 'School' | 'Other' | ''>(
+    event.title.includes('Work') ? 'Work' :
+    event.title.includes('School') ? 'School' :
+    'Other'
+  );
 
   const [pickerTarget, setPickerTarget] = useState<'date' | 'start' | 'end'>('date');
   const [isPickerVisible, setPickerVisibility] = useState(false);
@@ -30,13 +39,9 @@ export default function AddScheduleScreen() {
   };
 
   const handleConfirm = (selectedDate: Date) => {
-    if (pickerTarget === 'date') {
-      setDate(selectedDate);
-    } else if (pickerTarget === 'start') {
-      setStartTime(selectedDate);
-    } else if (pickerTarget === 'end') {
-      setEndTime(selectedDate);
-    }
+    if (pickerTarget === 'date') setDate(selectedDate);
+    else if (pickerTarget === 'start') setStartTime(selectedDate);
+    else if (pickerTarget === 'end') setEndTime(selectedDate);
     hidePicker();
   };
 
@@ -44,36 +49,36 @@ export default function AddScheduleScreen() {
     navigation.setOptions({
       headerRight: () => (
         <Button
-        onPress={async () => {
-          try {
-            // Fetch current user from Firebase Auth
-            const user = auth.currentUser;
-            const userName = user?.displayName || 'Guest'; // Use displayName or fallback to 'Guest'
-        
-            // Use userName dynamically in the title for 'Other' event type
-            const finalTitle = eventType === 'Other' && title ? title : `${eventType} (${userName})`;
-        
-            const scheduleData = {
-              title: finalTitle,
-              date: date.toISOString().split('T')[0], 
-              startTime: "08:30", 
-              endTime: "10:00", 
-              color: "#FF0000" 
-            };
-        
-            await addDoc(collection(db, 'schedules'), scheduleData);
-            navigation.goBack();
-          } catch (error) {
-            console.error('Error adding document: ', error);
-          }
-        }}
-        title="Submit"
-        color="#2196F3"
+          onPress={async () => {
+            try {
+              const finalTitle =
+                eventType === 'Other' && title
+                  ? title
+                  : `${eventType} (${event.title.split('(')[1] || 'User'})`;
+  
+              // Prepare data to update the event
+              const scheduleData = {
+                title: finalTitle,
+                date: date.toISOString().split('T')[0], // "YYYY-MM-DD"
+                startTime: startTime.toTimeString().slice(0, 5), // "HH:mm"
+                endTime: endTime.toTimeString().slice(0, 5), // "HH:mm"
+                color,
+              };
+  
+              // Update Firestore document
+              await updateDoc(doc(db, 'schedules', event.id), scheduleData);
+              navigation.goBack();
+            } catch (error) {
+              console.error('Error updating document: ', error);
+            }
+          }}
+          title="Save"
+          color="#2196F3"
         />
-        
       ),
     });
-  }, [navigation, title, date, startTime, endTime, eventType, auth]);
+  }, [navigation, title, date, startTime, endTime, eventType, color]);
+  
 
   return (
     <View style={styles.container}>
@@ -106,14 +111,14 @@ export default function AddScheduleScreen() {
           <TouchableOpacity
             key={type}
             style={[styles.optionButton, eventType === type && styles.selectedOption]}
-            onPress={() => setEventType(type as 'Work' | 'School' | 'Other')} // Explicitly cast type to one of the allowed types
+            onPress={() => setEventType(type as 'Work' | 'School' | 'Other')}
           >
             <Text style={[styles.buttonText, eventType === type && styles.selectedText]}>{type}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {(eventType === 'Other') && (
+      {eventType === 'Other' && (
         <>
           <Text style={styles.label}>Custom Title</Text>
           <TextInput
@@ -135,7 +140,6 @@ export default function AddScheduleScreen() {
           />
         ))}
       </View>
-      
     </View>
   );
 }

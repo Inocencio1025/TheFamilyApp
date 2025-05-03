@@ -4,7 +4,8 @@ import MainMenuScreen from '../screens/MainMenuScreen';
 import FamilyScheduleScreen from '../screens/familySchedule/FamilyScheduleScreen';
 import MediaTrackerScreen from '../screens/mediaTracker/MediaTrackerScreen';
 import AddScheduleScreen from '../screens/familySchedule/AddScheduleScreen';
-import LoginScreen from '../screens/LoginScreen';  // Import LoginScreen
+import LoginScreen from '../screens/LoginScreen';  
+import EditEventScreen from '../screens/familySchedule/EditEventScreen';  
 
 export type RootStackParamList = {
   Login: undefined;
@@ -12,6 +13,16 @@ export type RootStackParamList = {
   FamilySchedule: undefined;
   AddSchedule: undefined;
   MediaTracker: undefined;
+  EditEvent: { event: ScheduleEvent };
+};
+
+type ScheduleEvent = {
+  id: string;
+  title: string;
+  date: string;
+  startTime?: string;
+  endTime?: string;
+  color?: string;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -46,6 +57,11 @@ export default function AppNavigator() {
         name="MediaTracker"
         component={MediaTrackerScreen}
         options={{ title: 'Media Tracker' }}
+      />
+      <Stack.Screen
+        name="EditEvent"
+        component={EditEventScreen}
+        options={{ title: 'Edit'}}
       />
     </Stack.Navigator>
   );

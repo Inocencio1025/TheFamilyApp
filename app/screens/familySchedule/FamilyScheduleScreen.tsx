@@ -1,56 +1,67 @@
+// FamilyScheduleScreen.tsx
+
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Agenda } from 'react-native-calendars';
-import { createStackNavigator } from '@react-navigation/stack';
+import { collection, deleteDoc, doc, getDocs } from 'firebase/firestore';
+import { db } from '../../database/firebase';
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../database/firebase';
-
-dayjs.extend(isSameOrBefore);
 
 import type { StackNavigationProp } from '@react-navigation/stack';
 import type { RootStackParamList } from '../../navigation/AppNavigator';
 
-const Tab = createBottomTabNavigator();
+dayjs.extend(isSameOrBefore);
 
+const Tab = createBottomTabNavigator();
 type NavigationProp = StackNavigationProp<RootStackParamList, 'FamilySchedule'>;
 
-const TodayScreen = ({ selectedDate, setSelectedDate }: { selectedDate: string; setSelectedDate: React.Dispatch<React.SetStateAction<string>> }) => {
+type EventItem = {
+  id: string;
+  title: string;
+  date: string;
+  startTime?: string;
+  endTime?: string;
+  color?: string;
+};
+
+type EventItemFromDB = Omit<EventItem, 'id'>;
+
+const TodayScreen = ({
+  selectedDate,
+  setSelectedDate,
+}: {
+  selectedDate: string;
+  setSelectedDate: React.Dispatch<React.SetStateAction<string>>;
+}) => {
   const navigation = useNavigation<NavigationProp>();
-  const [items, setItems] = useState<Record<string, { name: string }[]>>({});
+  const [items, setItems] = useState<Record<string, EventItem[]>>({});
   const [loading, setLoading] = useState(true);
 
-  const updateItems = (newData: Record<string, any[]>) => {
-    setItems((prevItems) => ({
-      ...prevItems,
-      ...newData,
-    }));
+  const updateItems = (newData: Record<string, EventItem[]>) => {
+    setItems(prev => ({ ...prev, ...newData }));
   };
 
   const loadEventsFromDB = async () => {
-    const eventsCollection = collection(db, 'schedules'); 
-    const eventsSnapshot = await getDocs(eventsCollection);
-    const eventsList = eventsSnapshot.docs.map(doc => doc.data());
-
-    const newItems: Record<string, { name: string; startTime?: string; endTime?: string; color?: string }[]> = {};
-    eventsList.forEach(event => {
-      const date = event.date; // 'YYYY-MM-DD'
-      if (!newItems[date]) {
-        newItems[date] = [];
-      }
-      newItems[date].push({ 
-        name: event.title, 
-        startTime: event.startTime, 
-        endTime: event.endTime,
-        color: event.color 
-      });
+    const snapshot = await getDocs(collection(db, 'schedules'));
+    const eventList = snapshot.docs.map(docSnap => {
+      const data = docSnap.data() as EventItemFromDB;
+      return {
+        id: docSnap.id,
+        ...data,
+      };
     });
 
-    updateItems(newItems); 
+    const newItems: Record<string, EventItem[]> = {};
+    eventList.forEach(event => {
+      if (!newItems[event.date]) newItems[event.date] = [];
+      newItems[event.date].push(event);
+    });
+
+    updateItems(newItems);
     setLoading(false);
   };
 
@@ -59,51 +70,79 @@ const TodayScreen = ({ selectedDate, setSelectedDate }: { selectedDate: string; 
   }, []);
 
   const loadItemsForMonth = useCallback((day: any) => {
-    const newItems: Record<string, { name: string }[]> = {};
-    const today = new Date(day.timestamp);
+    const baseDate = new Date(day.timestamp);
+    const generated: Record<string, EventItem[]> = {};
 
     for (let i = 0; i < 30; i++) {
-      const date = new Date(today);
+      const date = new Date(baseDate);
       date.setDate(date.getDate() + i);
-      const dateString = date.toISOString().split('T')[0];
-      newItems[dateString] = [];
+      const dateStr = date.toISOString().split('T')[0];
+      generated[dateStr] = [];
     }
 
     Object.keys(items).forEach(date => {
-      newItems[date] = items[date];
+      generated[date] = items[date];
     });
 
-    updateItems(newItems); 
+    updateItems(generated);
   }, [items]);
 
-  const renderItem = useCallback((item: { name: string; startTime?: string; endTime?: string; color?: string }) => (
-    <View style={styles.itemContainer}>
+  const renderItem = useCallback((item: EventItem) => (
+    <TouchableOpacity
+      key={item.id}
+      onLongPress={() => handleLongPress(item)}
+      style={styles.itemContainer}
+    >
       <View style={[styles.colorStrip, { backgroundColor: item.color || 'gray' }]} />
       <View style={styles.itemContent}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Text>{item.name}</Text>
+          <Text>{item.title}</Text>
           {item.startTime && item.endTime && (
-            <Text style={{ color: 'gray' }}>
-              {item.startTime} - {item.endTime}
-            </Text>
+            <Text style={{ color: 'gray' }}>{item.startTime} - {item.endTime}</Text>
           )}
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   ), []);
 
-  const handleDateSelect = (date: string) => {
-    setSelectedDate(date);
+  const handleLongPress = (item: EventItem) => {
+    Alert.alert('Event Options', `What would you like to do with "${item.title}"?`, [
+      { text: 'Edit', onPress: () => handleEdit(item) },
+      { text: 'Delete', onPress: () => handleDelete(item) },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  };
+
+  const handleEdit = (item: EventItem) => {
+    navigation.navigate('EditEvent', { event: item });
+  };
+
+  const handleDelete = (item: EventItem) => {
+    Alert.alert('Confirm Delete', `Delete "${item.title}"?`, [
+      {
+        text: 'Yes',
+        onPress: async () => {
+          await deleteDoc(doc(db, 'schedules', item.id));
+          const updated = { ...items };
+          Object.keys(updated).forEach(date => {
+            updated[date] = updated[date].filter(e => e.id !== item.id);
+          });
+          updateItems(updated);
+        },
+      },
+      { text: 'No', style: 'cancel' },
+    ]);
   };
 
   const buildMarkedDates = () => {
     const markings: Record<string, any> = {};
+
     Object.keys(items).forEach(date => {
       markings[date] = { dots: [] };
       items[date].forEach(event => {
         markings[date].dots.push({
-          key: event.name,
-          color: 'gray',
+          key: event.id,
+          color: event.color || 'gray',
         });
       });
     });
@@ -134,9 +173,9 @@ const TodayScreen = ({ selectedDate, setSelectedDate }: { selectedDate: string; 
         selected={selectedDate}
         loadItemsForMonth={loadItemsForMonth}
         renderItem={renderItem}
-        onDayPress={(day: { dateString: string }) => handleDateSelect(day.dateString)}
+        onDayPress={(day: { dateString: string }) => setSelectedDate(day.dateString)}
         markedDates={buildMarkedDates()}
-        markingType={'multi-dot'}
+        markingType="multi-dot"
       />
       <TouchableOpacity
         style={styles.fab}
@@ -148,17 +187,13 @@ const TodayScreen = ({ selectedDate, setSelectedDate }: { selectedDate: string; 
   );
 };
 
-
 export default function FamilyScheduleScreen() {
-  const [selectedDate, setSelectedDate] = useState<string>(dayjs().format('YYYY-MM-DD'));
+  const [selectedDate, setSelectedDate] = useState(dayjs().format('YYYY-MM-DD'));
 
   return (
     <Tab.Navigator
       screenListeners={{
-        tabPress: (e) => {
-          
-          setSelectedDate(dayjs().format('YYYY-MM-DD'));
-        },
+        tabPress: () => setSelectedDate(dayjs().format('YYYY-MM-DD')),
       }}
     >
       <Tab.Screen
@@ -192,19 +227,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 5,
     zIndex: 1,
-  },
-  item: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    marginRight: 10,
-    marginTop: 17,
-  },
-  emptyItem: {
-    height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 17,
   },
   itemContainer: {
     flexDirection: 'row',
