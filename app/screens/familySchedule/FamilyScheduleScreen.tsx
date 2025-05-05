@@ -5,7 +5,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { Agenda } from 'react-native-calendars';
+import { Agenda, AgendaEntry, AgendaSchedule } from 'react-native-calendars';
 import { collection, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import { db } from '../../database/firebase';
 import dayjs from 'dayjs';
@@ -28,6 +28,8 @@ type EventItem = {
   color?: string;
 };
 
+type CustomAgendaEntry = AgendaEntry & EventItem;
+
 type EventItemFromDB = Omit<EventItem, 'id'>;
 
 const TodayScreen = ({
@@ -38,11 +40,11 @@ const TodayScreen = ({
   setSelectedDate: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   const navigation = useNavigation<NavigationProp>();
-  const [items, setItems] = useState<Record<string, EventItem[]>>({});
+  const [rawItems, setRawItems] = useState<Record<string, EventItem[]>>({});
   const [loading, setLoading] = useState(true);
 
   const updateItems = (newData: Record<string, EventItem[]>) => {
-    setItems(prev => ({ ...prev, ...newData }));
+    setRawItems(prev => ({ ...prev, ...newData }));
   };
 
   const loadEventsFromDB = async () => {
@@ -69,41 +71,64 @@ const TodayScreen = ({
     loadEventsFromDB();
   }, []);
 
+  const transformEventsToAgendaSchedule = (
+    data: Record<string, EventItem[]>
+  ): AgendaSchedule => {
+    const result: AgendaSchedule = {};
+    for (const date in data) {
+      result[date] = data[date].map(event => ({
+        ...event,
+        name: event.title,
+        height: 50,
+        day: date,
+      }));
+    }
+    return result;
+  };
+
   const loadItemsForMonth = useCallback((day: any) => {
     const baseDate = new Date(day.timestamp);
     const generated: Record<string, EventItem[]> = {};
-
+  
     for (let i = 0; i < 30; i++) {
       const date = new Date(baseDate);
       date.setDate(date.getDate() + i);
       const dateStr = date.toISOString().split('T')[0];
       generated[dateStr] = [];
     }
+  
+    // Only update if rawItems have changed
+    if (JSON.stringify(generated) !== JSON.stringify(rawItems)) {
+      Object.keys(rawItems).forEach(date => {
+        generated[date] = rawItems[date];
+      });
+      updateItems(generated);
+    }
+  }, [rawItems]);
+  
 
-    Object.keys(items).forEach(date => {
-      generated[date] = items[date];
-    });
-
-    updateItems(generated);
-  }, [items]);
-
-  const renderItem = useCallback((item: EventItem) => (
-    <TouchableOpacity
-      key={item.id}
-      onLongPress={() => handleLongPress(item)}
-      style={styles.itemContainer}
-    >
-      <View style={[styles.colorStrip, { backgroundColor: item.color || 'gray' }]} />
-      <View style={styles.itemContent}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Text>{item.title}</Text>
-          {item.startTime && item.endTime && (
-            <Text style={{color: 'gray'}}>{item.startTime} - {item.endTime}</Text>
-          )}
+  const renderItem = useCallback((item: AgendaEntry, isFirst: boolean) => {
+    const customItem = item as CustomAgendaEntry;
+  
+    return (
+      <TouchableOpacity
+        key={customItem.id}
+        onLongPress={() => handleLongPress(customItem)}
+        style={styles.itemContainer}
+      >
+        <View style={[styles.colorStrip, { backgroundColor: customItem.color || 'gray' }]} />
+        <View style={styles.itemContent}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text>{customItem.title}</Text>
+            {customItem.startTime && customItem.endTime && (
+              <Text style={{ color: 'gray' }}>{customItem.startTime} - {customItem.endTime}</Text>
+            )}
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  ), []);
+      </TouchableOpacity>
+    );
+  }, []);
+  
 
   const handleLongPress = (item: EventItem) => {
     Alert.alert('Event Options', `What would you like to do with "${item.title}"?`, [
@@ -123,7 +148,7 @@ const TodayScreen = ({
         text: 'Yes',
         onPress: async () => {
           await deleteDoc(doc(db, 'schedules', item.id));
-          const updated = { ...items };
+          const updated = { ...rawItems };
           Object.keys(updated).forEach(date => {
             updated[date] = updated[date].filter(e => e.id !== item.id);
           });
@@ -137,9 +162,9 @@ const TodayScreen = ({
   const buildMarkedDates = () => {
     const markings: Record<string, any> = {};
 
-    Object.keys(items).forEach(date => {
+    Object.keys(rawItems).forEach(date => {
       markings[date] = { dots: [] };
-      items[date].forEach(event => {
+      rawItems[date].forEach(event => {
         markings[date].dots.push({
           key: event.id,
           color: event.color || 'gray',
@@ -169,7 +194,7 @@ const TodayScreen = ({
   return (
     <View style={styles.container}>
       <Agenda
-        items={items}
+        items={transformEventsToAgendaSchedule(rawItems)}
         selected={selectedDate}
         loadItemsForMonth={loadItemsForMonth}
         renderItem={renderItem}
@@ -192,17 +217,6 @@ export default function FamilyScheduleScreen() {
 
   return (
     <Tab.Navigator
-      screenOptions={{
-        tabBarLabelStyle: {
-          fontFamily: 'PixelSans', // or your custom font
-          fontSize: 16,
-        },
-        headerTitleStyle: {
-          fontFamily: 'PixelSans',
-          fontSize: 28,
-        },
-        headerTitleAlign: 'center',
-      }}
       screenListeners={{
         tabPress: () => setSelectedDate(dayjs().format('YYYY-MM-DD')),
       }}
@@ -254,10 +268,5 @@ const styles = StyleSheet.create({
   itemContent: {
     flex: 1,
     padding: 20,
-  },
-  itemText: {
-    fontFamily: 'PixelSans',  // Apply custom font here
-    fontSize: 16,
-    color: '#000',
   },
 });
