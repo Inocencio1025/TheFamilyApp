@@ -86,25 +86,7 @@ const TodayScreen = ({
     return result;
   };
 
-  const loadItemsForMonth = useCallback((day: any) => {
-    const baseDate = new Date(day.timestamp);
-    const generated: Record<string, EventItem[]> = {};
-  
-    for (let i = 0; i < 30; i++) {
-      const date = new Date(baseDate);
-      date.setDate(date.getDate() + i);
-      const dateStr = date.toISOString().split('T')[0];
-      generated[dateStr] = [];
-    }
-  
-    // Only update if rawItems have changed
-    if (JSON.stringify(generated) !== JSON.stringify(rawItems)) {
-      Object.keys(rawItems).forEach(date => {
-        generated[date] = rawItems[date];
-      });
-      updateItems(generated);
-    }
-  }, [rawItems]);
+
   
 
   const renderItem = useCallback((item: AgendaEntry, isFirst: boolean) => {
@@ -159,6 +141,28 @@ const TodayScreen = ({
     ]);
   };
 
+  //------------------------------------------------
+
+  const loadItemsForMonth = useCallback((day: any) => {
+    const baseDate = new Date(day.timestamp);
+    const generated: Record<string, EventItem[]> = {};
+  
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(baseDate);
+      date.setDate(date.getDate() + i);
+      const dateStr = date.toISOString().split('T')[0];
+      generated[dateStr] = [];
+    }
+  
+    // Only update if rawItems have changed
+    if (JSON.stringify(generated) !== JSON.stringify(rawItems)) {
+      Object.keys(rawItems).forEach(date => {
+        generated[date] = rawItems[date];
+      });
+      updateItems(generated);
+    }
+  }, [rawItems]);
+
   const buildMarkedDates = () => {
     const markings: Record<string, any> = {};
 
@@ -182,6 +186,8 @@ const TodayScreen = ({
 
     return markings;
   };
+
+    //------------------------------------------------
 
   if (loading) {
     return (

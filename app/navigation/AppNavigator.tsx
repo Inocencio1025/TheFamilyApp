@@ -7,6 +7,7 @@ import AddScheduleScreen from '../screens/familySchedule/AddScheduleScreen';
 import LoginScreen from '../screens/LoginScreen';  
 import EditEventScreen from '../screens/familySchedule/EditEventScreen';  
 import { TextStyle } from 'react-native';
+import TopTabs from '../screens/mediaTracker/TopTabs';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -65,7 +66,7 @@ export default function AppNavigator() {
       />
       <Stack.Screen
         name="MediaTracker"
-        component={MediaTrackerScreen}
+        component={TopTabs}
         options={{ title: 'Media Tracker' }}
       />
       <Stack.Screen
