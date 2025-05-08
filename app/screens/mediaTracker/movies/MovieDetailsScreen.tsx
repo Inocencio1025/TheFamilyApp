@@ -4,9 +4,16 @@ import { Text } from 'react-native-paper';
 import { fetchMovieDetails } from '../../../api/tmdb';
 import { GradientBackground } from '../../components/GradientBackground';
 
+import { useNavigationState } from '@react-navigation/native';
+
+
 const MovieDetailsScreen = ({ route }: any) => {
   const { movieId } = route.params;
   const [movie, setMovie] = useState<any>(null);
+
+  const state = useNavigationState(state => state);
+  console.log("STACK FROM DETAILS:", JSON.stringify(state, null, 2));
+  console.log("ROUTE PROPS:", JSON.stringify(route, null, 2));
 
   useEffect(() => {
     (async () => {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Provider as PaperProvider, MD3DarkTheme as DefaultTheme } from 'react-native-paper';
 import AppNavigator from './navigation/AppNavigator';
 import { useFonts } from 'expo-font';
+import { StatusBar, View } from 'react-native';
 
 const theme = {
   ...DefaultTheme,
@@ -57,7 +58,15 @@ export default function Index() {
 
   return (
     <PaperProvider theme={theme}>
-      <AppNavigator />
+      <View style={{ flex: 1 }}>
+
+        <StatusBar
+          barStyle="light-content" // or "dark-content"
+          backgroundColor="transparent"
+          translucent
+        />        
+        <AppNavigator />
+      </View>
     </PaperProvider>
   );
 }

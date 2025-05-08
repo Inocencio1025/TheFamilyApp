@@ -4,7 +4,7 @@ import { Text } from 'react-native-paper';
 import { GradientBackground } from './GradientBackground';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { MovieTabsStackParamList } from '../mediaTracker/movies/MovieTabsStack';
+import { MediaStackParamList } from '@/app/navigation/MediaStack';
 
 type Movie = {
   id: number;
@@ -20,10 +20,9 @@ type Props = {
   onPress?: (movie: Movie) => void;
 };
 
-type Navigation = StackNavigationProp<MovieTabsStackParamList, 'MovieDetails'>;
 
 const MovieSection = ({ title, data, onPress }: Props) => {
-  const navigation = useNavigation<Navigation>();
+  const navigation = useNavigation<StackNavigationProp<MediaStackParamList, 'MovieDetails'>>();
   
   return (
     <View style={{ marginVertical: 10, }}>

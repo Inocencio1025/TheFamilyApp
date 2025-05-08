@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from 'react-native';
 const WatchedScreen: React.FC = () => {
   return (
     <View style={styles.container}>
-      <Text>Movie - Finding Screen</Text>
+      <Text>Movie - watched Screen</Text>
     </View>
   );
 };

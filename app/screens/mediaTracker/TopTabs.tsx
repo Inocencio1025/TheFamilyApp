@@ -2,7 +2,7 @@ import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useTheme } from 'react-native-paper';
 import AnimeTabs from './anime/AnimeTabs';
-import MovieTabsStack from './movies/MovieTabsStack';
+import MovieTabs from './movies/MovieTabs';
 
 const TopTab = createMaterialTopTabNavigator();
 
@@ -25,7 +25,7 @@ const TopTabs: React.FC = () => {
         },
       }}
     >
-      <TopTab.Screen name="Movies" component={MovieTabsStack} />
+      <TopTab.Screen name="Movies" component={MovieTabs} />
       <TopTab.Screen name="Anime" component={AnimeTabs} />
     </TopTab.Navigator>
   );
