@@ -10,3 +10,8 @@ export const fetchMoviesByGenre = async (genreId: number) => {
   const res = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}`);
   return await res.json();
 };
+
+export const fetchMovieDetails = async (movieId: number) => {
+  const res = await fetch(`${BASE_URL}/movie/${movieId}?api_key=${API_KEY}`);
+  return await res.json();
+};

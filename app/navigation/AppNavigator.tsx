@@ -6,16 +6,16 @@ import FamilyScheduleScreen from '../screens/familySchedule/FamilyScheduleScreen
 import AddScheduleScreen from '../screens/familySchedule/AddScheduleScreen';
 import LoginScreen from '../screens/LoginScreen';  
 import EditEventScreen from '../screens/familySchedule/EditEventScreen';  
-import TopTabs from '../screens/mediaTracker/TopTabs';
 import MMDrawerContent from '../screens/components/MMDrawerContent';
+import MediaStack from './MediaStack'; // import at top
 
 export type RootStackParamList = {
   Login: undefined;
   MainMenu: undefined;
   FamilySchedule: undefined;
   AddSchedule: undefined;
-  MediaTracker: undefined;
   EditEvent: { event: ScheduleEvent };
+  MediaTracker: undefined;
 };
 
 type ScheduleEvent = {
@@ -105,7 +105,7 @@ export default function AppNavigator() {
       />
       <Stack.Screen
         name="MediaTracker"
-        component={TopTabs}
+        component={MediaStack}
         options={{ title: 'Media Tracker' }}
       />
       <Stack.Screen
