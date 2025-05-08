@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
-import { View, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { Text } from '../components/Text';  // Make sure Text component is imported
+import { Button, useTheme, IconButton } from 'react-native-paper'; // useTheme gives access to theme colors
+import { GradientBackground } from './components/GradientBackground';
+import { useNavigation, DrawerActions } from '@react-navigation/native';
 
 type MainMenuNavigationProp = StackNavigationProp<RootStackParamList, 'MainMenu'>;
 
@@ -22,31 +24,59 @@ const logout = async (navigation: MainMenuNavigationProp) => {
 };
 
 export default function MainMenuScreen({ navigation }: Props) {
+  const theme = useTheme();
+
   useEffect(() => {
-    const setHeaderTitle = async () => {
+    const setHeader = async () => {
       const userName = await AsyncStorage.getItem('userName');
-      if (userName) {
-        navigation.setOptions({ title: `Welcome Back, ${userName}!` });
-      }
+      navigation.setOptions({
+        title: userName ? `Welcome Back, ${userName}!` : 'Main Menu',
+        headerRight: () => (
+          <IconButton
+            icon="menu"
+            onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
+            iconColor="white"
+            size={24}
+          />
+        ),
+      });
     };
-
-    setHeaderTitle();
+  
+    setHeader();
   }, [navigation]);
-
+  
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('FamilySchedule')}>
-        <Text variant="title" style={styles.buttonText}>Family Schedule</Text>
-      </TouchableOpacity>
+    <GradientBackground>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <Button
+          mode="contained"
+          onPress={() => navigation.navigate('FamilySchedule')}
+          style={[styles.button, { backgroundColor: theme.colors.secondary }]} // Primary color
+          contentStyle={styles.buttonContent}
+        >
+          Family Schedule
+        </Button>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MediaTracker')}>
-        <Text variant="title" style={styles.buttonText}>Media Tracker</Text>
-      </TouchableOpacity>
+        <Button
+          mode="contained"
+          onPress={() => navigation.navigate('MediaTracker')}
+          style={[styles.button, { backgroundColor: theme.colors.secondary }]} // Secondary color
+          contentStyle={styles.buttonContent}
+        >
+          Media Tracker
+        </Button>
 
-      <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={() => logout(navigation)}>
-        <Text variant="title" style={styles.buttonText}>Logout</Text>
-      </TouchableOpacity>
-    </View>
+        <Button
+          mode="contained"
+          onPress={() => logout(navigation)}
+          buttonColor={theme.colors.error} // use theme's error color for logout
+          style={[styles.button, { backgroundColor: theme.colors.error }]}
+          contentStyle={styles.buttonContent}
+        >
+          Logout
+        </Button>
+      </View>
+    </GradientBackground>
   );
 }
 
@@ -58,18 +88,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   button: {
-    backgroundColor: '#007BFF',
-    paddingVertical: 15,
-    borderRadius: 8,
-    alignItems: 'center',
+    borderRadius: 30,  // Increased borderRadius for pill shape
+    elevation: 3,      // Adds a slight shadow/elevation for a material look
+    width: '100%',     // Ensures button takes up full width of its container
   },
-  logoutButton: {
-    backgroundColor: '#FF3B30',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    fontFamily: 'PixelSans'
+  buttonContent: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,  // Adjust padding inside the button
   },
 });

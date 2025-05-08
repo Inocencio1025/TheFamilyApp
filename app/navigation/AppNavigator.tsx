@@ -1,13 +1,13 @@
 import React from 'react';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import MainMenuScreen from '../screens/MainMenuScreen';
 import FamilyScheduleScreen from '../screens/familySchedule/FamilyScheduleScreen';
-import MediaTrackerScreen from '../screens/mediaTracker/MediaTrackerScreen';
 import AddScheduleScreen from '../screens/familySchedule/AddScheduleScreen';
 import LoginScreen from '../screens/LoginScreen';  
 import EditEventScreen from '../screens/familySchedule/EditEventScreen';  
-import { TextStyle } from 'react-native';
 import TopTabs from '../screens/mediaTracker/TopTabs';
+import MMDrawerContent from '../screens/components/MMDrawerContent';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -28,6 +28,40 @@ type ScheduleEvent = {
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
+const Drawer = createDrawerNavigator();
+
+// Drawer wrapper JUST for MainMenu
+function MainMenuDrawerWrapper() {
+  return (
+    <Drawer.Navigator
+    drawerContent={(props) => <MMDrawerContent {...props} />}
+    screenOptions={{
+        drawerPosition: 'right', // ✅ move it here
+        drawerStyle: {
+          backgroundColor: 'black', // Drawer background
+          width: '70%',
+        },
+        headerStyle: {
+          backgroundColor: 'black', // Top bar (header) background
+        },
+        headerTintColor: 'white', // Text and icon color in header
+        drawerLabelStyle: {
+          color: 'white', // Drawer text color
+        },
+        headerTitleStyle: {
+          fontFamily: 'PixelifySans'
+        },
+        headerTitleAlign: 'center',
+      }}
+    >
+      <Drawer.Screen
+        name="MainMenu"
+        component={MainMenuScreen}
+        options={{ title: 'Main Menu' }}
+      />
+    </Drawer.Navigator>
+  );
+}
 
 export default function AppNavigator() {
   return (
@@ -35,21 +69,26 @@ export default function AppNavigator() {
       initialRouteName="Login"
       screenOptions={{
         headerTitleStyle: {
-          fontFamily: 'PixelSans', // 👈 custom font applied here
+          fontFamily: 'PixelifySans',
           fontSize: 28,
-        } as TextStyle,
+          color: 'white',
+        },
+        headerStyle: {
+          backgroundColor: 'black',
+        },
         headerTitleAlign: 'center',
+        headerTintColor: 'white',
       }}
     >
       <Stack.Screen
         name="Login"
         component={LoginScreen}
-        options={{ title: 'Login' }}  
+        options={{ title: 'Login' }}
       />
       <Stack.Screen
         name="MainMenu"
-        component={MainMenuScreen}
-        options={{ title: 'Main Menu' }}
+        component={MainMenuDrawerWrapper} // Wrapped in drawer
+        options={{ headerShown: false }} // Hide header, drawer has its own
       />
       <Stack.Screen
         name="FamilySchedule"
@@ -72,7 +111,7 @@ export default function AppNavigator() {
       <Stack.Screen
         name="EditEvent"
         component={EditEventScreen}
-        options={{ title: 'Edit'}}
+        options={{ title: 'Edit' }}
       />
     </Stack.Navigator>
   );
