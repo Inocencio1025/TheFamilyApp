@@ -15,3 +15,14 @@ export const fetchMovieDetails = async (movieId: number) => {
   const res = await fetch(`${BASE_URL}/movie/${movieId}?api_key=${API_KEY}`);
   return await res.json();
 };
+
+export const fetchMoviesBySearch = async (query: string) => {
+  try {
+    const res = await fetch(`${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
+    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error('Search error:', err);
+    return { results: [] };
+  }
+};

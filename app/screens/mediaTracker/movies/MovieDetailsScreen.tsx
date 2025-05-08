@@ -1,42 +1,103 @@
 import React, { useEffect, useState } from 'react';
 import { View, Image, ScrollView, StyleSheet } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text, FAB, useTheme } from 'react-native-paper';
 import { fetchMovieDetails } from '../../../api/tmdb';
 import { GradientBackground } from '../../components/GradientBackground';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { useNavigationState } from '@react-navigation/native';
 
+const checkIfMovieIsSaved = async (movieId: number) => {
+  const userId = await AsyncStorage.getItem('userId');
+  if (!userId) return false;
+
+  const key = `${userId}_movies`;
+  const savedMovies = JSON.parse(await AsyncStorage.getItem(key) || '[]');
+  return savedMovies.some((m: any) => m.movieId === movieId);
+};
 
 const MovieDetailsScreen = ({ route }: any) => {
   const { movieId } = route.params;
   const [movie, setMovie] = useState<any>(null);
+  const [isSaved, setIsSaved] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
-  const state = useNavigationState(state => state);
-  console.log("STACK FROM DETAILS:", JSON.stringify(state, null, 2));
-  console.log("ROUTE PROPS:", JSON.stringify(route, null, 2));
+  const theme = useTheme();
 
   useEffect(() => {
     (async () => {
-      const data = await fetchMovieDetails(movieId);
-      setMovie(data);
+      try {
+        console.log('Fetching details for movie ID:', movieId);
+        const data = await fetchMovieDetails(movieId);
+        setMovie(data);
+  
+        const saved = await checkIfMovieIsSaved(movieId);
+        setIsSaved(saved);
+      } catch (error) {
+        console.error('Error fetching movie details:', error);
+      }
     })();
   }, [movieId]);
+  
+
+  const handleSaveMovie = async () => {
+    const userId = await AsyncStorage.getItem('userId');
+    if (!userId || !movie) return;
+  
+    const key = `${userId}_movies`;
+    const existing = JSON.parse(await AsyncStorage.getItem(key) || '[]');
+  
+    const alreadySaved = existing.some((m: any) => m.movieId === movie.id);
+  
+    if (alreadySaved) {
+      // Remove the movie
+      const updated = existing.filter((m: any) => m.movieId !== movie.id);
+      await AsyncStorage.setItem(key, JSON.stringify(updated));
+      setIsSaved(false);
+      console.log('Movie removed from saved list');
+    } else {
+      // Save the movie
+      const newMovie = {
+        movieId: movie.id,
+        status: 'planned',
+        savedAt: new Date().toISOString(),
+      };
+      const updated = [...existing, newMovie];
+      await AsyncStorage.setItem(key, JSON.stringify(updated));
+      setIsSaved(true);
+      console.log('Movie saved');
+    }
+  };
+  
+  
 
   if (!movie) return null;
 
   return (
     <GradientBackground palette="green" variant={0}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Image
-          source={{ uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}` }}
-          style={styles.poster}
+      <View style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={styles.container}>
+          <Image
+            source={{ uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}` }}
+            style={styles.poster}
+          />
+          <Text style={styles.title}>{movie.title}</Text>
+          <Text style={styles.info}>
+            {movie.release_date?.slice(0, 4)} · {movie.vote_average?.toFixed(1)} ★ · {movie.runtime} min
+          </Text>
+          <Text style={styles.overview}>{movie.overview}</Text>
+        </ScrollView>
+
+        <FAB
+          icon={isSaved ? 'check' : 'bookmark-plus'}
+          label={isSaved ? 'Saved' : 'Watch Later'}
+          onPress={handleSaveMovie}
+          style={[
+            styles.fab,
+            { backgroundColor: isSaved ? theme.colors.secondary : theme.colors.primary },
+          ]}
+          color={theme.colors.onPrimary}
         />
-        <Text style={styles.title}>{movie.title}</Text>
-        <Text style={styles.info}>
-          {movie.release_date?.slice(0, 4)} · {movie.vote_average?.toFixed(1)} ★ · {movie.runtime} min
-        </Text>
-        <Text style={styles.overview}>{movie.overview}</Text>
-      </ScrollView>
+      </View>
     </GradientBackground>
   );
 };
@@ -67,6 +128,12 @@ const styles = StyleSheet.create({
     color: '#ccc',
     fontSize: 16,
     textAlign: 'center',
+  },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 40,
+    backgroundColor: '#0D8ABC',
   },
 });
 
