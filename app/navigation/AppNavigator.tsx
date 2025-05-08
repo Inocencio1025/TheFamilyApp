@@ -106,7 +106,7 @@ export default function AppNavigator() {
       <Stack.Screen
         name="MediaTracker"
         component={MediaStack}
-        options={{ title: 'Media Tracker' }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="EditEvent"

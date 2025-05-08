@@ -2,6 +2,7 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import TopTabs from '../screens/mediaTracker/TopTabs';
 import MovieDetailsScreen from '../screens/mediaTracker/movies/MovieDetailsScreen';
+import { SafeAreaView, StyleSheet } from 'react-native';
 
 export type MediaStackParamList = {
   TopTabs: undefined;
@@ -11,6 +12,7 @@ export type MediaStackParamList = {
 const Stack = createStackNavigator<MediaStackParamList>();
 
 const MediaStack = () => (
+  
   <Stack.Navigator
     screenOptions={{
       headerStyle: {
@@ -28,7 +30,7 @@ const MediaStack = () => (
     <Stack.Screen
       name="TopTabs"
       component={TopTabs}
-      options={{ headerShown: false }}
+      options={{ headerShown: true, title: "Media Tracker" }}
     />
     <Stack.Screen
       name="MovieDetails"

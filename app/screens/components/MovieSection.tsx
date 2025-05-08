@@ -78,11 +78,11 @@ const styles = StyleSheet.create({
   },
   itemContent: {
     alignItems: 'center',
-    width: 180,
+    width: 120,
   },
   poster: {
-    width: 180,
-    height: 270,
+    width: 120,
+    height: 180,
     borderRadius: 8,
   },
   movieTitle: {
