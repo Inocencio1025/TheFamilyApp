@@ -12,6 +12,7 @@ import { RefreshControl } from 'react-native';
 type NavigationProp = StackNavigationProp<MediaStackParamList, 'PlannedScreen'>;
 
 const PlannedScreen = () => {
+
   const [plannedMovies, setPlannedMovies] = useState<any[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false); // For handling refresh state
 
@@ -47,10 +48,16 @@ const PlannedScreen = () => {
     <TouchableOpacity 
       onPress={() => navigation.navigate('MovieDetails', { movieId: item.id })}>
       
-      <View style={styles.card}>
-        <Image source={{ uri: `https://image.tmdb.org/t/p/w300${item.poster_path}` }} style={styles.poster} />
-        <Text style={styles.title}>{item.title}</Text>
+      <View style={styles.gradientWrapper}>
+      
+        <GradientBackground palette="green" variant={1}>
+          <View style={styles.card}>
+            <Image source={{ uri: `https://image.tmdb.org/t/p/w300${item.poster_path}` }} style={styles.poster} />
+            <Text style={styles.title}>{item.title}</Text>
+          </View>
+        </GradientBackground>
       </View>
+
     </TouchableOpacity>
   );
 
@@ -98,7 +105,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    marginBottom: 20,
+    marginVertical: 20,
     alignItems: 'center',
   },
   poster: {
@@ -111,6 +118,13 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     fontWeight: '600',
+    fontSize: 18,
+  },
+  gradientWrapper: {
+    borderRadius: 40,
+    overflow: 'hidden',
+    marginHorizontal: 0,
+    marginVertical: 12,
   },
 });
 

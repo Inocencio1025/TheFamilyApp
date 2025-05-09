@@ -25,10 +25,9 @@ const MovieSection = ({ title, data, onPress }: Props) => {
   const navigation = useNavigation<StackNavigationProp<MediaStackParamList, 'MovieDetails'>>();
   
   return (
-    <View style={{ marginVertical: 10, }}>
+    <View style={styles.gradientWrapper}>
+      <GradientBackground palette="green" variant={1}>
       <Text style={styles.genreTitle}>{title}</Text>
-      <View style={styles.gradientWrapper}>
-        <GradientBackground palette="green" variant={1}>
           <FlatList
             data={data}
             horizontal
@@ -55,17 +54,16 @@ const MovieSection = ({ title, data, onPress }: Props) => {
             showsHorizontalScrollIndicator={false}
           />
         </GradientBackground>
-      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   genreTitle: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
-    marginLeft: 10,
-    marginBottom: 4,
+    marginLeft: 32,
+    marginBottom: 12,
     color: '#fff',
   },
   gradientWrapper: {
