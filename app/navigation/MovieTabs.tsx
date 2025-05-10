@@ -1,10 +1,11 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTheme } from 'react-native-paper';
-import FindingScreen from './FindingScreen';
-import PlannedScreen from './PlannedScreen';
-import WatchedScreen from './WatchedScreen';
+
 import { Ionicons } from '@expo/vector-icons';
+import FindingScreen from '../screens/mediaTracker/movies/FindingScreen';
+import PlannedScreen from '../screens/mediaTracker/movies/PlannedScreen';
+import WatchedScreen from '../screens/mediaTracker/movies/WatchedScreen';
 
 const Tab = createBottomTabNavigator();
 

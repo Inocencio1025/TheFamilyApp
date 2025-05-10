@@ -3,6 +3,7 @@ import { Provider as PaperProvider, MD3DarkTheme as DefaultTheme } from 'react-n
 import AppNavigator from './navigation/AppNavigator';
 import { useFonts } from 'expo-font';
 import { StatusBar, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const theme = {
   ...DefaultTheme,
@@ -14,6 +15,8 @@ const theme = {
     surface: '#c6dabf',
     text: '#ffffff', 
     error: '#1a936f', 
+    outline: '114b5f',
+    
   },
   fonts: {
     ...DefaultTheme.fonts,
@@ -57,16 +60,17 @@ export default function Index() {
   }
 
   return (
-    <PaperProvider theme={theme}>
-      <View style={{ flex: 1 }}>
-
-        <StatusBar
-          barStyle="light-content" // or "dark-content"
-          backgroundColor="transparent"
-          translucent
-        />        
-        <AppNavigator />
-      </View>
-    </PaperProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <PaperProvider theme={theme}>
+        <View style={{ flex: 1 }}>
+          <StatusBar
+            barStyle="light-content"
+            backgroundColor="transparent"
+            translucent
+          />
+          <AppNavigator />
+        </View>
+      </PaperProvider>
+    </GestureHandlerRootView>
   );
 }

@@ -5,7 +5,7 @@ type GradientSet = string[][];
 export const gradientPresets: Record<string, GradientSet> = {
   green: [
     ['#000000', '#114b5f'],
-    ['#121212ee', '#12121200'],
+    ['#121212', '#202020'],
     ['#004e64', '#61c9a8'],
   ],
   red: [

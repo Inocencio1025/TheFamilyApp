@@ -1,15 +1,15 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import TopTabs from '../screens/mediaTracker/TopTabs';
 import MovieDetailsScreen from '../screens/mediaTracker/movies/MovieDetailsScreen';
-import FindingScreen from '../screens/mediaTracker/movies/FindingScreen';
 import SearchResultsScreen from '../screens/mediaTracker/movies/SearchResultsScreen';
+import TopTabs from './TopTabs';
 
 export type MediaStackParamList = {
   TopTabs: undefined;
   MovieDetails: { movieId: number };
   MovieSearch: { query: string };
   PlannedScreen: undefined;
+  WatchedScreen: undefined;
 
 };
 

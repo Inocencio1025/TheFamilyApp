@@ -68,6 +68,15 @@ export default function MainMenuScreen({ navigation }: Props) {
 
         <Button
           mode="contained"
+          onPress={() => navigation.navigate('MediaTracker')}
+          style={[styles.button, { backgroundColor: theme.colors.secondary }]} // Secondary color
+          contentStyle={styles.buttonContent}
+        >
+          Memory Jar
+        </Button>
+
+        <Button
+          mode="contained"
           onPress={() => logout(navigation)}
           buttonColor={theme.colors.error} // use theme's error color for logout
           style={[styles.button, { backgroundColor: theme.colors.error }]}
@@ -91,6 +100,8 @@ const styles = StyleSheet.create({
     borderRadius: 30,  // Increased borderRadius for pill shape
     elevation: 3,      // Adds a slight shadow/elevation for a material look
     width: '100%',     // Ensures button takes up full width of its container
+    borderWidth: 2,
+    borderColor: "black"
   },
   buttonContent: {
     paddingVertical: 12,

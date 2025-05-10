@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, FlatList, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import { GradientBackground } from './GradientBackground';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { MediaStackParamList } from '@/app/navigation/MediaStack';
+
 
 type Movie = {
   id: number;
@@ -23,7 +24,8 @@ type Props = {
 
 const MovieSection = ({ title, data, onPress }: Props) => {
   const navigation = useNavigation<StackNavigationProp<MediaStackParamList, 'MovieDetails'>>();
-  
+  const theme = useTheme();
+
   return (
     <View style={styles.gradientWrapper}>
       <GradientBackground palette="green" variant={1}>
@@ -70,6 +72,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: 'hidden',
     marginHorizontal: 0,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: '#000000'
   },
   itemWrapper: {
     marginHorizontal: 8,

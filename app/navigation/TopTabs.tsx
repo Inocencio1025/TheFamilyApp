@@ -1,8 +1,9 @@
 import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useTheme } from 'react-native-paper';
-import AnimeTabs from './anime/AnimeTabs';
-import MovieTabs from './movies/MovieTabs';
+import AnimeTabs from '../screens/mediaTracker/anime/AnimeTabs';
+import MovieTabs from './MovieTabs';
+
 
 const TopTab = createMaterialTopTabNavigator();
 

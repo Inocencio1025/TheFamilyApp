@@ -1,11 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { GradientBackground } from '../../components/GradientBackground';
 
 const PlannedScreen: React.FC = () => {
   return (
-    <View style={styles.container}>
-      <Text>Movie - Finding Screen</Text>
-    </View>
+    <GradientBackground palette="green" variant={0}>
+      <View style={styles.container}>
+        <Text style={styles.message}>Anime Tracker Coming Soon!</Text>
+      </View>
+    </GradientBackground>
   );
 };
 
@@ -16,5 +19,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  message: {
+    fontFamily: 'PixelifySans',
+    fontSize: 40,
+    color: 'white',
+    textAlign: 'center',
   },
 });
