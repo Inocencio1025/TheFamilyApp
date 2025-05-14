@@ -33,12 +33,14 @@ A mobile app designed to help households stay organized by centralizing shared r
    git clone https://github.com/Inocencio1025/TheFamilyApp.git
 
 2. Install dependencies:
+   ```bash
    npm install
 
 3. Start the development server:
+   ```bash
    npx expo start
 
-   📱 Open the app in Expo Go or your preferred simulator
+📱 Open the app in Expo Go or your preferred simulator
 
 ## 🖼️ Screenshots
 
@@ -54,7 +56,6 @@ A mobile app designed to help households stay organized by centralizing shared r
 - [ ] Memory jar with camera + text support  
 - [ ] UI animations and hidden Easter eggs  
 
----
 
 ## 🔐 Environment Variables
 
@@ -65,14 +66,13 @@ Create a `.env` file in the root:
 ```env
 TMDB_API_KEY=your_tmdb_key_here
 JIKAN_API_KEY=your_jikan_key_if_needed
-
+```
 
 ## 🙋‍♂️ Author
 
 **R. Inocencio**  
 [GitHub](https://github.com/Inocencio1025) • Inocencio@oakland.edu
 
----
 
 ## 🧼 Status
 
