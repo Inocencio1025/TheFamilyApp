@@ -1,50 +1,80 @@
-# Welcome to your Expo app 👋
+# 🏠 Family Utility App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile app designed to help households stay organized by centralizing shared responsibilities — including shared schedules, bills, groceries, media tracking, and memory entries.
 
-## Get started
+---
 
-1. Install dependencies
+## 📱 Features (WIP)
 
+- ✅ Shared family calendar with event tags  
+- ✅ Grocery list synced via Firestore  
+- ✅ Movie tracker via TMDb API  
+- 🔄 Anime tracker via Jikan API (in progress)  
+- 🔄 Memory jar with photo + text support  
+- ✅ Custom UI with themed gradients & dark mode  
+- 🔄 Dynamic backgrounds and hidden Easter eggs  
+
+---
+
+## 🧰 Tech Stack
+
+- **React Native + Expo**
+- **Firebase** (Auth, Firestore, Storage)
+- **TMDb API** & **Jikan API**
+- **React Native Paper** for UI components
+- **TypeScript** & **VS Code**
+
+---
+
+## 🚀 Getting Started
+
+1. Clone the repo:
    ```bash
+   git clone https://github.com/Inocencio1025/TheFamilyApp.git
+
+2. Install dependencies:
    npm install
-   ```
 
-2. Start the app
+3. Start the development server:
+   npx expo start
 
-   ```bash
-    npx expo start
-   ```
+   📱 Open the app in Expo Go or your preferred simulator
 
-In the output, you'll find options to open the app in a
+## 🖼️ Screenshots
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+   Coming soon — will include movie browser, shared schedule, and Memory logs
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 🛠️ Development Roadmap
 
-## Get a fresh project
+- [x] Shared schedule with event tagging  
+- [x] Shared grocery list synced with Firestore  
+- [x] Login screen with Firebase Auth  
+- [x] Movie tracker with TMDb integration  
+- [ ] Anime tracker using Jikan API  
+- [ ] Memory jar with camera + text support  
+- [ ] UI animations and hidden Easter eggs  
 
-When you're ready, run:
+---
 
-```bash
-npm run reset-project
-```
+## 🔐 Environment Variables
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+This app uses `.env` to store API keys securely.
 
-## Learn more
+Create a `.env` file in the root:
 
-To learn more about developing your project with Expo, look at the following resources:
+```env
+TMDB_API_KEY=your_tmdb_key_here
+JIKAN_API_KEY=your_jikan_key_if_needed
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
-## Join the community
+## 🙋‍♂️ Author
 
-Join our community of developers creating universal apps.
+**R. Inocencio**  
+[GitHub](https://github.com/Inocencio1025) • Inocencio@oakland.edu
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+## 🧼 Status
+
+This project is actively being built for personal/family use.  
+It’s a showcase of mobile development, Firebase integration, and clean React Native UI design.
