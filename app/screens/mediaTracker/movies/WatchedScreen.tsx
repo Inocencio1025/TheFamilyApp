@@ -44,6 +44,7 @@ type MovieItemProps = {
 
 const SwipeableMovieItem = ({ item, onEdit, onRequestDelete }: MovieItemProps) => {
   const theme = useTheme();
+  const navigation = useNavigation<StackNavigationProp<MediaStackParamList, 'EditMovie'>>();
  
   const translateX = useSharedValue(0);
 
@@ -149,7 +150,7 @@ const WatchedScreen = () => {
   };
 
   const handleEdit = (movieId: number) => {
-    navigation.navigate('MovieDetails', { movieId });
+    navigation.navigate('EditMovie', { movieId: movieId })  
   };
 
   const confirmDelete = async () => {

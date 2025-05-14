@@ -6,6 +6,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { Button, useTheme, IconButton } from 'react-native-paper'; // useTheme gives access to theme colors
 import { GradientBackground } from './components/GradientBackground';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
+import { SpriteAnimator } from '../components/SpriteAnimator';
 
 type MainMenuNavigationProp = StackNavigationProp<RootStackParamList, 'MainMenu'>;
 
@@ -48,6 +49,17 @@ export default function MainMenuScreen({ navigation }: Props) {
   return (
     <GradientBackground>
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+
+        {/* Luigi Sprite Animation */}
+        <SpriteAnimator
+          frameWidth={16}
+          frameHeight={32}
+          columns={2}
+          fps={6}
+          totalFrames={2}
+          spriteSheet={require('../../assets/sprites/LuigiSMWSprites.png')}
+        />
+
         <Button
           mode="contained"
           onPress={() => navigation.navigate('FamilySchedule')}

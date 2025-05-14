@@ -3,6 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import MovieDetailsScreen from '../screens/mediaTracker/movies/MovieDetailsScreen';
 import SearchResultsScreen from '../screens/mediaTracker/movies/SearchResultsScreen';
 import TopTabs from './TopTabs';
+import EditMovieScreen from '../screens/mediaTracker/movies/EditMovieScreen';
 
 export type MediaStackParamList = {
   TopTabs: undefined;
@@ -10,6 +11,7 @@ export type MediaStackParamList = {
   MovieSearch: { query: string };
   PlannedScreen: undefined;
   WatchedScreen: undefined;
+  EditMovie: { movieId: number };
 
 };
 
@@ -39,6 +41,14 @@ const MediaStack = () => (
     <Stack.Screen
       name="MovieDetails"
       component={MovieDetailsScreen}
+      options={{
+        headerShown: true,
+        title: '',
+      }}
+    />
+    <Stack.Screen
+      name="EditMovie"
+      component={EditMovieScreen}
       options={{
         headerShown: true,
         title: '',
